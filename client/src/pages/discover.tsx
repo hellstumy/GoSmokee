@@ -44,7 +44,7 @@ const Discover: React.FC = () => {
         <h1 className="text-lg font-semibold">Discover People</h1>
       </div>
       
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto h-full">
         {location.loading ? (
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
