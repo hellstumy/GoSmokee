@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { NearbyUser } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { UserList } from '@/components/users/UserList';
+import { MapPin } from 'lucide-react';
 
 const Discover: React.FC = () => {
   const location = useLocation();
@@ -55,7 +56,7 @@ const Discover: React.FC = () => {
         ) : location.error ? (
           <div className="h-full flex items-center justify-center p-4">
             <div className="text-center max-w-md">
-              <span className="material-icons text-red-500 text-4xl mb-2">location_off</span>
+              <MapPin className="h-12 w-12 text-red-500 mb-2" />
               <h3 className="text-xl font-semibold mb-2">Location Error</h3>
               <p>{location.error}</p>
               <Button 
@@ -76,7 +77,7 @@ const Discover: React.FC = () => {
         ) : isError ? (
           <div className="h-full flex items-center justify-center p-4">
             <div className="text-center max-w-md">
-              <span className="material-icons text-red-500 text-4xl mb-2">error</span>
+              <span className="text-red-500 text-4xl mb-2">⚠️</span>
               <h3 className="text-xl font-semibold mb-2">Error</h3>
               <p>Failed to load nearby users. Please try again.</p>
               <Button 

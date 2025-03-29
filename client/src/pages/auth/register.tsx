@@ -36,7 +36,7 @@ const Register: React.FC = () => {
       displayName: '',
       age: 18,
       bio: '',
-      interests: []
+      interests: [] as string[]
     }
   });
 
@@ -182,6 +182,7 @@ const Register: React.FC = () => {
                         <Textarea 
                           placeholder="Tell us a little about yourself..."
                           {...field}
+                          value={field.value || ''} // Ensure value is never null
                           rows={3}
                         />
                       </FormControl>
@@ -232,8 +233,8 @@ const Register: React.FC = () => {
         <CardFooter className="flex justify-center">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             Already have an account?{" "}
-            <Link href="/login">
-              <a className="text-primary hover:underline">Login</a>
+            <Link href="/login" className="text-primary hover:underline">
+              Login
             </Link>
           </div>
         </CardFooter>
