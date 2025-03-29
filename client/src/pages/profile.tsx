@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 
 const Profile: React.FC = () => {
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
   // Fetch user data
@@ -97,7 +99,7 @@ const Profile: React.FC = () => {
   const handleLogout = async () => {
     try {
       await apiRequest('POST', '/api/auth/logout', {});
-      window.location.href = '/login';
+      setLocation('/login');
     } catch (error) {
       toast({
         title: 'Error',
@@ -124,7 +126,7 @@ const Profile: React.FC = () => {
   }
   
   return (
-    <div className="p-4">
+    <div className="p-4 h-full overflow-y-auto">
       <h2 className="text-xl font-semibold mb-4">My Profile</h2>
       
       <Card className="mb-4">

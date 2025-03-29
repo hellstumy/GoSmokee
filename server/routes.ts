@@ -2,7 +2,7 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import { createServer, type Server } from "http";
 import { WebSocketServer } from "ws";
 import WebSocket from "ws";
-import { storage as dbStorage } from "./storage";
+import { dbStorage } from "./dbStorage";
 import { 
   insertUserSchema, 
   insertInvitationSchema, 
