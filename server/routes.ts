@@ -119,17 +119,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username already taken" });
       }
       
-      // Hash password
-      const hashedPassword = crypto
-        .createHash('sha256')
-        .update(userData.password)
-        .digest('hex');
-      
-      // Create user with hashed password
-      const user = await dbStorage.createUser({
-        ...userData,
-        password: hashedPassword
-      });
+      // Create user (password will be hashed in dbStorage)
+      const user = await dbStorage.createUser(userData);
       
       // Set session
       req.session.userId = user.id;
@@ -161,12 +152,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check password
-      const hashedPassword = crypto
+      const inputHashedPassword = crypto
         .createHash('sha256')
         .update(password)
         .digest('hex');
       
-      if (user.password !== hashedPassword) {
+      if (user.password !== inputHashedPassword) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
       
