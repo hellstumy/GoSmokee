@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { MobileNavigation } from './MobileNavigation';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 
 interface MainLayoutProps {
@@ -78,17 +78,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <span className="text-primary text-xl font-semibold">GoSmoke</span>
         </div>
         <div className="flex items-center space-x-3">
-          <button
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 relative"
-            onClick={() => {
-              window.location.href = '/invitations';
-            }}
-          >
-            <span className="material-icons">notifications</span>
-            {hasNotifications && (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
-            )}
-          </button>
+          <Link href="/invitations">
+            <button
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 relative"
+            >
+              <span className="material-icons">notifications</span>
+              {hasNotifications && (
+                <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+              )}
+            </button>
+          </Link>
           <button
             onClick={toggleDarkMode}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"

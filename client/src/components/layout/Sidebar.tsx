@@ -18,54 +18,50 @@ export const Sidebar: React.FC<SidebarProps> = ({ hasNotifications, toggleDarkMo
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">
           <li>
-            <Link href="/discover">
-              <a className={`flex items-center p-3 rounded-lg ${
+            <Link href="/discover" 
+              className={`flex items-center p-3 rounded-lg ${
                 location === '/discover' || location === '/' 
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200' 
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}>
-                <span className="material-icons mr-3">explore</span>
-                <span>Discover</span>
-              </a>
+              <span className="material-icons mr-3">explore</span>
+              <span>Discover</span>
             </Link>
           </li>
           <li>
-            <Link href="/invitations">
-              <a className={`flex items-center p-3 rounded-lg ${
+            <Link href="/invitations" 
+              className={`flex items-center p-3 rounded-lg ${
                 location === '/invitations' 
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200' 
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}>
-                <span className="material-icons mr-3">email</span>
-                <span>Invitations</span>
-                {hasNotifications && (
-                  <span className="ml-auto bg-primary text-white text-xs rounded-full px-2 py-1">New</span>
-                )}
-              </a>
+              <span className="material-icons mr-3">email</span>
+              <span>Invitations</span>
+              {hasNotifications && (
+                <span className="ml-auto bg-primary text-white text-xs rounded-full px-2 py-1">New</span>
+              )}
             </Link>
           </li>
           <li>
-            <Link href="/chats">
-              <a className={`flex items-center p-3 rounded-lg ${
+            <Link href="/chats" 
+              className={`flex items-center p-3 rounded-lg ${
                 location === '/chats' 
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200' 
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}>
-                <span className="material-icons mr-3">chat</span>
-                <span>Chats</span>
-              </a>
+              <span className="material-icons mr-3">chat</span>
+              <span>Chats</span>
             </Link>
           </li>
           <li>
-            <Link href="/profile">
-              <a className={`flex items-center p-3 rounded-lg ${
+            <Link href="/profile" 
+              className={`flex items-center p-3 rounded-lg ${
                 location === '/profile' 
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200' 
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}>
-                <span className="material-icons mr-3">person</span>
-                <span>Profile</span>
-              </a>
+              <span className="material-icons mr-3">person</span>
+              <span>Profile</span>
             </Link>
           </li>
         </ul>

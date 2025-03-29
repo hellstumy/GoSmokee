@@ -99,7 +99,8 @@ const Profile: React.FC = () => {
   const handleLogout = async () => {
     try {
       await apiRequest('POST', '/api/auth/logout', {});
-      setLocation('/login');
+      // Redirect to root path, which will handle auth state and redirect to login
+      setLocation('/');
     } catch (error) {
       toast({
         title: 'Error',
