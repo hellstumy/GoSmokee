@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { UserMarker } from '../users/UserMarker';
 import { NearbyUser } from '@/lib/types';
 import { Button } from './button';
 import { UserCard } from '../users/UserCard';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { MapPin, Navigation, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface MapProps {
   users: NearbyUser[];
@@ -11,96 +13,126 @@ interface MapProps {
   selectedUser?: NearbyUser | null;
 }
 
-const Map: React.FC<MapProps> = ({ users, userLocation, onUserSelect, selectedUser }) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(15);
+// Google Maps configuration
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%'
+};
 
-  // Mock map rendering - in a real app, we would use a library like React Map GL
-  // For this example, we'll use a div with a background image and position the markers relatively
+const options = {
+  disableDefaultUI: true,
+  zoomControl: false,
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false
+};
+
+const Map: React.FC<MapProps> = ({ users, userLocation, onUserSelect, selectedUser }) => {
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   
+  // Load Google Maps API
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.VITE_GOOGLE_MAPS_API_KEY || ''
+  });
+  
+  // Handle Google Maps load
+  const onLoad = useCallback((map: google.maps.Map) => {
+    setMap(map);
+  }, []);
+  
+  // Handle map unmount
+  const onUnmount = useCallback(() => {
+    setMap(null);
+  }, []);
+  
+  // Map control handlers
   const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev + 1, 20));
+    if (map) {
+      map.setZoom((map.getZoom() || 14) + 1);
+    }
   };
   
   const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev - 1, 10));
+    if (map) {
+      map.setZoom((map.getZoom() || 14) - 1);
+    }
   };
   
   const handleMyLocation = () => {
-    // In a real map implementation, this would center the map on the user's location
-    if (mapContainerRef.current) {
-      mapContainerRef.current.classList.add('pulse-animation');
-      setTimeout(() => {
-        if (mapContainerRef.current) {
-          mapContainerRef.current.classList.remove('pulse-animation');
-        }
-      }, 500);
+    if (map && userLocation) {
+      map.panTo(userLocation);
     }
   };
 
-  // Generate positions for the users
-  // This is a mock implementation - in a real app, we would convert actual coordinates
-  const generatePosition = (index: number) => {
-    const baseX = 50; // Center X%
-    const baseY = 50; // Center Y%
-    const angle = (index / users.length) * Math.PI * 2;
-    const distance = 20 + (index % 3) * 10; // Distance from center, varied for visual appeal
-    
-    // Calculate position using polar coordinates
-    const x = baseX + distance * Math.cos(angle);
-    const y = baseY + distance * Math.sin(angle);
-    
-    return { x: `${x}%`, y: `${y}%` };
-  };
+  // Calculate map center based on user location
+  const center = userLocation || { lat: 37.7749, lng: -122.4194 }; // Default to San Francisco if no user location
+  
+  // If the API isn't loaded yet, show a loading state
+  if (!isLoaded) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
+  // If there was an error loading the API, show an error
+  if (loadError) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-center p-4">
+          <p className="text-red-500 mb-2">Error loading Google Maps</p>
+          <p className="text-sm text-gray-500">Check your API key or network connection</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-full w-full">
-      <div 
-        ref={mapContainerRef}
-        className="h-full w-full bg-cover bg-center transition-all duration-300"
-        style={{ 
-          backgroundImage: `url('https://images.unsplash.com/photo-1577086664693-894d8405334a?auto=format&fit=crop&w=800&q=80')`,
-          transform: `scale(${zoom / 15})`,
-        }}
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={14}
+        options={options}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
       >
-        {/* User markers */}
-        {users.map((user, index) => {
-          const position = generatePosition(index);
-          return (
-            <div
-              key={user.id}
-              className="absolute"
-              style={{ 
-                top: position.y, 
-                left: position.x, 
-                transform: 'translate(-50%, -50%)'
-              }}
-            >
-              <UserMarker 
-                user={user} 
-                isSelected={selectedUser?.id === user.id}
-                onClick={() => onUserSelect(user)}
-              />
-            </div>
-          );
-        })}
-        
         {/* Current user location marker */}
         {userLocation && (
-          <div
-            className="absolute"
-            style={{ 
-              top: '50%', 
-              left: '50%', 
-              transform: 'translate(-50%, -50%)'
+          <Marker
+            position={userLocation}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#FF6B6B',
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: '#FFFFFF',
             }}
-          >
-            <div className="w-6 h-6 rounded-full bg-primary border-2 border-white flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-white"></div>
-            </div>
-          </div>
+          />
         )}
-      </div>
+        
+        {/* User markers */}
+        {users.map((user) => {
+          if (!user.location) return null;
+          
+          return (
+            <Marker
+              key={user.id}
+              position={user.location}
+              icon={{
+                url: user.avatarUrl || '/assets/default-avatar.svg',
+                scaledSize: new google.maps.Size(40, 40),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(20, 20)
+              }}
+              onClick={() => onUserSelect(user)}
+            />
+          );
+        })}
+      </GoogleMap>
       
       {/* Map controls */}
       <div className="absolute bottom-20 right-4 z-10 flex flex-col space-y-2">
@@ -110,7 +142,7 @@ const Map: React.FC<MapProps> = ({ users, userLocation, onUserSelect, selectedUs
           className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 shadow-lg"
           onClick={handleMyLocation}
         >
-          <span className="material-icons text-gray-700 dark:text-gray-200">my_location</span>
+          <Navigation className="h-5 w-5" />
         </Button>
         <Button 
           variant="outline" 
@@ -118,7 +150,7 @@ const Map: React.FC<MapProps> = ({ users, userLocation, onUserSelect, selectedUs
           className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 shadow-lg"
           onClick={handleZoomIn}
         >
-          <span className="material-icons text-gray-700 dark:text-gray-200">zoom_in</span>
+          <ZoomIn className="h-5 w-5" />
         </Button>
         <Button 
           variant="outline" 
@@ -126,7 +158,7 @@ const Map: React.FC<MapProps> = ({ users, userLocation, onUserSelect, selectedUs
           className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 shadow-lg"
           onClick={handleZoomOut}
         >
-          <span className="material-icons text-gray-700 dark:text-gray-200">zoom_out</span>
+          <ZoomOut className="h-5 w-5" />
         </Button>
       </div>
       

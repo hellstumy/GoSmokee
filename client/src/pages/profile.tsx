@@ -10,6 +10,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { User } from '@/lib/types';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { AvatarUpload } from '@/components/profile/AvatarUpload';
 
 const Profile: React.FC = () => {
   const { toast } = useToast();
@@ -128,29 +129,16 @@ const Profile: React.FC = () => {
       
       <Card className="mb-4">
         <CardContent className="p-6 flex flex-col items-center border-b border-gray-200 dark:border-gray-700">
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
-              {user.avatarUrl ? (
-                <img 
-                  className="w-full h-full object-cover"
-                  src={user.avatarUrl}
-                  alt={user.displayName}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
-                  <span className="material-icons text-5xl">person</span>
-                </div>
-              )}
-            </div>
-            <Button 
-              variant="outline"
-              size="icon"
-              className="absolute bottom-0 right-0 bg-white dark:bg-gray-800 rounded-full p-1 shadow-md border border-gray-200 dark:border-gray-700"
-              disabled
-            >
-              <span className="material-icons text-gray-600 dark:text-gray-300 text-lg">edit</span>
-            </Button>
-          </div>
+          <AvatarUpload 
+            currentAvatarUrl={user.avatarUrl} 
+            displayName={user.displayName}
+            onSuccess={(newAvatarUrl) => {
+              queryClient.setQueryData(['/api/auth/me'], {
+                ...user,
+                avatarUrl: newAvatarUrl
+              });
+            }}
+          />
           <h3 className="mt-4 text-lg font-semibold">{user.displayName}</h3>
           <p className="text-gray-500 dark:text-gray-400">
             {user.age} • <span className="material-icons text-xs">location_on</span> {user.location ? 'Location shared' : 'Location not shared'}
