@@ -1,0 +1,27 @@
+{
+  "users": [
+    {
+      "username": "hells",
+      "password": "Mozilla1",
+      "displayName": "",
+      "age": 18,
+      "bio": null,
+      "interests": [],
+      "id": 1,
+      "createdAt": "2025-03-30T21:48:17.206Z",
+      "location": null,
+      "avatarUrl": null,
+      "showOnMap": true,
+      "maxDistance": 5
+    }
+  ],
+  "invitations": [],
+  "chats": [],
+  "messages": [],
+  "counters": {
+    "userId": 2,
+    "invitationId": 1,
+    "chatId": 1,
+    "messageId": 1
+  }
+}

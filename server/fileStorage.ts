@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { IStorage } from './storage';
 import { 
   User, InsertUser, 
@@ -102,9 +103,16 @@ export class FileStorage implements IStorage {
     const id = this.data.counters.userId++;
     const createdAt = new Date();
     
+    // Хешируем пароль перед сохранением
+    const hashedPassword = crypto
+      .createHash('sha256')
+      .update(userData.password)
+      .digest('hex');
+    
     // Установка отсутствующих полей с корректными типами
     const user: User = {
       ...userData,
+      password: hashedPassword,
       id,
       createdAt,
       bio: userData.bio || null,
