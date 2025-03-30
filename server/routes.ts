@@ -2,7 +2,7 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import { createServer, type Server } from "http";
 import { WebSocketServer } from "ws";
 import WebSocket from "ws";
-import { dbStorage } from "./dbStorage";
+import { fileStorage } from "./fileStorage";
 import { 
   insertUserSchema, 
   insertInvitationSchema, 
@@ -40,7 +40,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
     return res.status(401).json({ message: "Unauthorized" });
   }
   
-  const user = await dbStorage.getUser(userId);
+  const user = await fileStorage.getUser(userId);
   if (!user) {
     return res.status(401).json({ message: "User not found" });
   }
@@ -114,13 +114,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userData = insertUserSchema.parse(req.body);
       
       // Check if username already exists
-      const existingUser = await dbStorage.getUserByUsername(userData.username);
+      const existingUser = await fileStorage.getUserByUsername(userData.username);
       if (existingUser) {
         return res.status(400).json({ message: "Username already taken" });
       }
       
-      // Create user (password will be hashed in dbStorage)
-      const user = await dbStorage.createUser(userData);
+      // Create user (password will be hashed in fileStorage)
+      const user = await fileStorage.createUser(userData);
       
       // Set session
       req.session.userId = user.id;
@@ -146,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Find user
-      const user = await dbStorage.getUserByUsername(username);
+      const user = await fileStorage.getUserByUsername(username);
       if (!user) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req as any).user.id;
       
       // Update user data
-      const updatedUser = await dbStorage.updateUser(userId, req.body);
+      const updatedUser = await fileStorage.updateUser(userId, req.body);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -219,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const avatarUrl = `/uploads/profiles/${file.filename}`;
       
       // Update user with new avatar URL
-      const updatedUser = await dbStorage.updateUser(userId, { avatarUrl });
+      const updatedUser = await fileStorage.updateUser(userId, { avatarUrl });
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -246,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update user location
-      const updatedUser = await dbStorage.updateUser(userId, {
+      const updatedUser = await fileStorage.updateUser(userId, {
         location: { lat, lng }
       });
       
@@ -263,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/users/nearby', authMiddleware, async (req, res) => {
     try {
       const userId = (req as any).user.id;
-      const user = await dbStorage.getUser(userId);
+      const user = await fileStorage.getUser(userId);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -275,7 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get nearby users
       const maxDistance = user.maxDistance || 5;
-      const nearbyUsers = await dbStorage.getNearbyUsers(userId, maxDistance);
+      const nearbyUsers = await fileStorage.getNearbyUsers(userId, maxDistance);
       
       // Filter out sensitive data
       const filteredUsers = nearbyUsers.map(user => {
@@ -301,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Create invitation
-      const invitation = await dbStorage.createInvitation(invitationData);
+      const invitation = await fileStorage.createInvitation(invitationData);
       res.status(201).json(invitation);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -314,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/invitations/sent', authMiddleware, async (req, res) => {
     try {
       const userId = (req as any).user.id;
-      const invitations = await dbStorage.getInvitationsBySender(userId);
+      const invitations = await fileStorage.getInvitationsBySender(userId);
       res.status(200).json(invitations);
     } catch (error) {
       res.status(500).json({ message: "Error fetching sent invitations" });
@@ -324,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/invitations/received', authMiddleware, async (req, res) => {
     try {
       const userId = (req as any).user.id;
-      const invitations = await dbStorage.getInvitationsByReceiver(userId);
+      const invitations = await fileStorage.getInvitationsByReceiver(userId);
       res.status(200).json(invitations);
     } catch (error) {
       res.status(500).json({ message: "Error fetching received invitations" });
@@ -343,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get invitation
-      const invitation = await dbStorage.getInvitation(invitationId);
+      const invitation = await fileStorage.getInvitation(invitationId);
       if (!invitation) {
         return res.status(404).json({ message: "Invitation not found" });
       }
@@ -354,14 +354,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update invitation
-      const updatedInvitation = await dbStorage.updateInvitation(invitationId, status);
+      const updatedInvitation = await fileStorage.updateInvitation(invitationId, status);
       
       // If accepted, create a chat between the two users
       if (status === 'accepted') {
-        const existingChat = await dbStorage.getChatByUsers(invitation.senderId, invitation.receiverId);
+        const existingChat = await fileStorage.getChatByUsers(invitation.senderId, invitation.receiverId);
         
         if (!existingChat) {
-          await dbStorage.createChat({
+          await fileStorage.createChat({
             user1Id: invitation.senderId,
             user2Id: invitation.receiverId
           });
@@ -380,24 +380,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req as any).user.id;
       
       // Get all chats
-      const chats = await dbStorage.getUserChats(userId);
+      const chats = await fileStorage.getUserChats(userId);
       
       // Get the other user for each chat and the last message
       const chatDetails = await Promise.all(chats.map(async chat => {
         // Get the other user
         const otherUserId = chat.user1Id === userId ? chat.user2Id : chat.user1Id;
-        const otherUser = await dbStorage.getUser(otherUserId);
+        const otherUser = await fileStorage.getUser(otherUserId);
         
         if (!otherUser) {
           return null;
         }
         
         // Get messages for this chat
-        const messages = await dbStorage.getMessagesByChat(chat.id);
+        const messages = await fileStorage.getMessagesByChat(chat.id);
         const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
         
         // Get unread message count
-        const unreadCount = await dbStorage.getUnreadMessageCount(chat.id, userId);
+        const unreadCount = await fileStorage.getUnreadMessageCount(chat.id, userId);
         
         // Filter out password
         const { password, ...otherUserWithoutPassword } = otherUser;
@@ -456,7 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req as any).user.id;
       
       // Get chat
-      const chat = await dbStorage.getChat(chatId);
+      const chat = await fileStorage.getChat(chatId);
       if (!chat) {
         return res.status(404).json({ message: "Chat not found" });
       }
@@ -467,10 +467,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get messages
-      const messages = await dbStorage.getMessagesByChat(chatId);
+      const messages = await fileStorage.getMessagesByChat(chatId);
       
       // Mark messages as read
-      await dbStorage.markMessagesAsRead(chatId, userId);
+      await fileStorage.markMessagesAsRead(chatId, userId);
       
       res.status(200).json(messages);
     } catch (error) {
@@ -490,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Handle authentication
         if (data.type === 'auth') {
           const userId = data.userId;
-          const user = await dbStorage.getUser(userId);
+          const user = await fileStorage.getUser(userId);
           
           if (user) {
             ws.userId = userId;
@@ -510,7 +510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { chatId, content } = data;
           
           // Get chat
-          const chat = await dbStorage.getChat(chatId);
+          const chat = await fileStorage.getChat(chatId);
           if (!chat) {
             ws.send(JSON.stringify({ error: 'Chat not found' }));
             return;
@@ -523,7 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Create message
-          const message = await dbStorage.createMessage({
+          const message = await fileStorage.createMessage({
             chatId,
             senderId: ws.userId,
             content
