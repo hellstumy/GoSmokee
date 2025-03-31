@@ -13,7 +13,6 @@ import { User } from '@/lib/types';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
-import { PREDEFINED_INTERESTS } from '@/lib/constants';
 
 const Profile: React.FC = () => {
   const [, setLocation] = useLocation();
@@ -178,45 +177,22 @@ const Profile: React.FC = () => {
                 ))}
               </div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {PREDEFINED_INTERESTS.map((interest) => {
-                  const isSelected = interests.includes(interest);
-                  return (
-                    <div 
-                      key={interest} 
-                      className={`rounded-lg border border-gray-200 dark:border-gray-700 p-2 cursor-pointer flex items-center gap-2 ${
-                        isSelected ? 'bg-primary/10 dark:bg-primary/20 border-primary' : ''
-                      }`}
-                      onClick={() => {
-                        if (isSelected) {
-                          setInterests(interests.filter(i => i !== interest));
-                        } else {
-                          setInterests([...interests, interest]);
-                        }
-                      }}
-                    >
-                      <Checkbox 
-                        checked={isSelected}
-                        id={`interest-${interest}`}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            if (!interests.includes(interest)) {
-                              setInterests([...interests, interest]);
-                            }
-                          } else {
-                            setInterests(interests.filter(i => i !== interest));
-                          }
-                        }}
-                      />
-                      <Label 
-                        htmlFor={`interest-${interest}`}
-                        className="cursor-pointer text-sm flex-1"
-                      >
-                        {interest}
-                      </Label>
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col">
+                <Input
+                  type="text"
+                  placeholder="Add interest and press Enter"
+                  className="mb-2"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const value = e.currentTarget.value.trim();
+                      if (value && !interests.includes(value)) {
+                        setInterests([...interests, value]);
+                        e.currentTarget.value = '';
+                      }
+                    }
+                  }}
+                />
               </div>
             </div>
             

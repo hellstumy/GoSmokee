@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { UserMarker } from './UserMarker';
-import { PREDEFINED_INTERESTS } from '@/lib/constants';
 
 interface UserCardProps {
   user: NearbyUser;
@@ -133,7 +132,7 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onClose }) => {
                 required
               />
               <div className="flex flex-wrap gap-1 mt-2">
-                {PREDEFINED_INTERESTS.slice(0, 8).map((interest) => (
+                {['Покурить', 'Кофе', 'Погулять', 'Выпить'].map((interest) => (
                   <Button
                     key={interest}
                     type="button"
