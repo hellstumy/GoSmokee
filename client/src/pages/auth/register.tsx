@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 
 const registerSchema = insertUserSchema.extend({
   confirmPassword: z.string().min(1, 'Please confirm your password'),
@@ -61,8 +62,14 @@ const Register: React.FC = () => {
         description: 'Welcome to GoSmoke. You are now logged in.',
       });
       
-      // Redirect to discover page
-      setLocation('/discover');
+      // Показываем анимацию загрузки без скрытия через finally
+      // Редирект на discover page
+      setTimeout(() => {
+        setLocation('/discover');
+      }, 300); // Небольшая задержка для показа анимации загрузки
+      
+      // Не сбрасываем флаг загрузки, так как переходим на другую страницу
+      return;
     } catch (error) {
       let errorMessage = 'Registration failed. Please try again.';
       
@@ -75,13 +82,15 @@ const Register: React.FC = () => {
         description: errorMessage,
         variant: 'destructive',
       });
-    } finally {
+      
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      {loading && <LoadingScreen message="Создание аккаунта и переход в приложение..." />}
+      
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">

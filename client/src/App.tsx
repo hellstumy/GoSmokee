@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { useEffect, useState } from "react";
+import { AppLoader } from "@/components/AppLoader";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 
 // Pages
 import NotFound from "@/pages/not-found";
@@ -34,11 +36,7 @@ function Router() {
   
   // Show loading state while checking authentication
   if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingScreen message="Проверка авторизации..." />;
   }
   
   // If not authenticated, only show auth pages
@@ -72,8 +70,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AppLoader>
+        <Router />
+        <Toaster />
+      </AppLoader>
     </QueryClientProvider>
   );
 }

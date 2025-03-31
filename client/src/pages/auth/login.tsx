@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -41,8 +42,14 @@ const Login: React.FC = () => {
         description: 'Welcome back to GoSmoke.',
       });
       
-      // Redirect to discover page
-      setLocation('/discover');
+      // Показываем анимацию загрузки без скрытия через finally
+      // Редирект на discover page
+      setTimeout(() => {
+        setLocation('/discover');
+      }, 300); // Небольшая задержка для показа анимации загрузки
+      
+      // Не сбрасываем флаг загрузки, так как переходим на другую страницу
+      return;
     } catch (error) {
       let errorMessage = 'Login failed. Please check your credentials and try again.';
       
@@ -55,13 +62,15 @@ const Login: React.FC = () => {
         description: errorMessage,
         variant: 'destructive',
       });
-    } finally {
+      
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      {loading && <LoadingScreen message="Переход на главную страницу..." />}
+      
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
