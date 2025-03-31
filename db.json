@@ -13,13 +13,30 @@
       "avatarUrl": null,
       "showOnMap": true,
       "maxDistance": 5
+    },
+    {
+      "username": "hellst",
+      "password": "664ad13a822b8803aba5a4a07334fb644dfc00205de402728a7aeae82e944d30",
+      "displayName": "",
+      "age": 18,
+      "bio": null,
+      "interests": [],
+      "id": 2,
+      "createdAt": "2025-03-30T21:50:30.085Z",
+      "location": {
+        "lat": 50.2648919,
+        "lng": 19.0237815
+      },
+      "avatarUrl": null,
+      "showOnMap": true,
+      "maxDistance": 5
     }
   ],
   "invitations": [],
   "chats": [],
   "messages": [],
   "counters": {
-    "userId": 2,
+    "userId": 3,
     "invitationId": 1,
     "chatId": 1,
     "messageId": 1

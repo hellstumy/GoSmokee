@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { UserMarker } from './UserMarker';
+import { PREDEFINED_INTERESTS } from '@/lib/constants';
 
 interface UserCardProps {
   user: NearbyUser;
@@ -85,7 +86,7 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onClose }) => {
                   {user.interests.map((interest, index) => (
                     <span
                       key={index}
-                      className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-full"
+                      className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground px-2 py-0.5 rounded-full"
                     >
                       {interest}
                     </span>
@@ -122,15 +123,31 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onClose }) => {
           <form onSubmit={handleSendInvitation} className="space-y-4 pt-2">
             <div className="space-y-2">
               <label htmlFor="activity" className="text-sm font-medium">
-                What would you like to do?
+                Чем бы вы хотели заняться?
               </label>
               <Input
                 id="activity"
-                placeholder="e.g., Go for a coffee, Take a walk..."
+                placeholder="Например: выпить кофе, погулять..."
                 value={activity}
                 onChange={(e) => setActivity(e.target.value)}
                 required
               />
+              <div className="flex flex-wrap gap-1 mt-2">
+                {PREDEFINED_INTERESTS.slice(0, 8).map((interest) => (
+                  <Button
+                    key={interest}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={`text-xs py-1 px-2 h-auto rounded-full ${
+                      activity === interest ? 'bg-primary/10 border-primary' : ''
+                    }`}
+                    onClick={() => setActivity(interest)}
+                  >
+                    {interest}
+                  </Button>
+                ))}
+              </div>
             </div>
             <div className="space-y-2">
               <label htmlFor="message" className="text-sm font-medium">

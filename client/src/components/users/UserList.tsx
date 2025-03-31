@@ -86,13 +86,13 @@ export const UserList: React.FC<UserListProps> = ({ users, onRefresh, isRefreshi
                   {user.interests.slice(0, 3).map((interest, index) => (
                     <span
                       key={index}
-                      className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-full"
+                      className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground px-2 py-0.5 rounded-full"
                     >
                       {interest}
                     </span>
                   ))}
                   {user.interests.length > 3 && (
-                    <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground px-2 py-0.5 rounded-full">
                       +{user.interests.length - 3} more
                     </span>
                   )}

@@ -7,11 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { User } from '@/lib/types';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
+import { PREDEFINED_INTERESTS } from '@/lib/constants';
 
 const Profile: React.FC = () => {
   const [, setLocation] = useLocation();
@@ -27,7 +29,6 @@ const Profile: React.FC = () => {
   const [showOnMap, setShowOnMap] = useState(true);
   const [maxDistance, setMaxDistance] = useState(2);
   const [interests, setInterests] = useState<string[]>([]);
-  const [interestInput, setInterestInput] = useState('');
   
   // Initialize form with user data when available
   React.useEffect(() => {
@@ -74,25 +75,9 @@ const Profile: React.FC = () => {
     });
   };
   
-  // Add an interest tag
-  const addInterest = () => {
-    if (interestInput.trim() && !interests.includes(interestInput.trim())) {
-      setInterests([...interests, interestInput.trim()]);
-      setInterestInput('');
-    }
-  };
-  
   // Remove an interest tag
   const removeInterest = (index: number) => {
     setInterests(interests.filter((_, i) => i !== index));
-  };
-  
-  // Handle key press in interest input
-  const handleInterestKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addInterest();
-    }
   };
   
   // Handle logout
@@ -174,12 +159,12 @@ const Profile: React.FC = () => {
             </div>
             
             <div>
-              <Label htmlFor="interests" className="block mb-2">Interests</Label>
-              <div className="flex flex-wrap gap-2 mb-2">
+              <Label htmlFor="interests" className="block mb-2">Интересы</Label>
+              <div className="flex flex-wrap gap-2 mb-4">
                 {interests.map((interest, index) => (
                   <div 
                     key={index} 
-                    className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-3 py-1 rounded-full flex items-center"
+                    className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-xs px-3 py-1 rounded-full flex items-center"
                   >
                     {interest}
                     <button 
@@ -192,23 +177,46 @@ const Profile: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <div className="flex">
-                <Input
-                  id="interestInput"
-                  value={interestInput}
-                  onChange={(e) => setInterestInput(e.target.value)}
-                  onKeyDown={handleInterestKeyPress}
-                  placeholder="Add an interest (e.g., Coffee, Walking)"
-                  className="flex-1"
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="ml-2"
-                  onClick={addInterest}
-                >
-                  Add
-                </Button>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {PREDEFINED_INTERESTS.map((interest) => {
+                  const isSelected = interests.includes(interest);
+                  return (
+                    <div 
+                      key={interest} 
+                      className={`rounded-lg border border-gray-200 dark:border-gray-700 p-2 cursor-pointer flex items-center gap-2 ${
+                        isSelected ? 'bg-primary/10 dark:bg-primary/20 border-primary' : ''
+                      }`}
+                      onClick={() => {
+                        if (isSelected) {
+                          setInterests(interests.filter(i => i !== interest));
+                        } else {
+                          setInterests([...interests, interest]);
+                        }
+                      }}
+                    >
+                      <Checkbox 
+                        checked={isSelected}
+                        id={`interest-${interest}`}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            if (!interests.includes(interest)) {
+                              setInterests([...interests, interest]);
+                            }
+                          } else {
+                            setInterests(interests.filter(i => i !== interest));
+                          }
+                        }}
+                      />
+                      <Label 
+                        htmlFor={`interest-${interest}`}
+                        className="cursor-pointer text-sm flex-1"
+                      >
+                        {interest}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             

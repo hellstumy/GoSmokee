@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { insertUserSchema } from '@shared/schema';
@@ -12,6 +13,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { PREDEFINED_INTERESTS } from '@/lib/constants';
 
 const registerSchema = insertUserSchema.extend({
   confirmPassword: z.string().min(1, 'Please confirm your password'),
@@ -186,6 +188,55 @@ const Register: React.FC = () => {
                           rows={3}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="interests"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Интересы</FormLabel>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                        {PREDEFINED_INTERESTS.map((interest) => {
+                          const isSelected = field.value?.includes(interest) || false;
+                          return (
+                            <div 
+                              key={interest} 
+                              className={`rounded-lg border border-gray-200 dark:border-gray-700 p-2 cursor-pointer flex items-center gap-2 ${
+                                isSelected ? 'bg-primary/10 dark:bg-primary/20 border-primary' : ''
+                              }`}
+                              onClick={() => {
+                                const currentInterests = field.value || [];
+                                const updatedInterests = isSelected
+                                  ? currentInterests.filter((i: string) => i !== interest)
+                                  : [...currentInterests, interest];
+                                field.onChange(updatedInterests);
+                              }}
+                            >
+                              <Checkbox 
+                                checked={isSelected}
+                                id={`interest-${interest}`}
+                                onCheckedChange={(checked) => {
+                                  const currentInterests = field.value || [];
+                                  const updatedInterests = checked
+                                    ? [...currentInterests, interest]
+                                    : currentInterests.filter((i: string) => i !== interest);
+                                  field.onChange(updatedInterests);
+                                }}
+                              />
+                              <Label 
+                                htmlFor={`interest-${interest}`}
+                                className="cursor-pointer text-sm flex-1"
+                              >
+                                {interest}
+                              </Label>
+                            </div>
+                          );
+                        })}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
