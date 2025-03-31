@@ -9,12 +9,22 @@ export const AppLoader: React.FC<AppLoaderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Имитируем загрузку ресурсов приложения
-    const timer = setTimeout(() => {
+    // Проверяем, был ли предыдущий переход с другой страницы (например, с логина)
+    const wasPreviouslyLoaded = sessionStorage.getItem('app_loaded');
+    
+    if (wasPreviouslyLoaded) {
+      // Если приложение уже загружалось ранее, не показываем экран загрузки
       setIsLoading(false);
-    }, 1500); // Время загрузки - 1.5 секунды
+    } else {
+      // Имитируем загрузку ресурсов приложения при первом запуске
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        // Запоминаем, что приложение уже загружалось
+        sessionStorage.setItem('app_loaded', 'true');
+      }, 1500); // Время загрузки - 1.5 секунды
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   if (isLoading) {
